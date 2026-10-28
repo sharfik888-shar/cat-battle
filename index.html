@@ -23,12 +23,14 @@ header {
 .cat-avatar {
   width:44px; height:44px; border-radius:50%;
   background: linear-gradient(135deg,#ff9a56,#ff6b6b);
-  display:flex; align-items:center; justify-content:center; font-size:24px;
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
+.cat-avatar svg { width:34px; height:34px; }
 .cat-name { font-weight:700; font-size:15px; }
 .cat-level { font-size:12px; opacity:0.7; }
 .resources { display:flex; gap:10px; font-size:14px; }
-.res { background: rgba(255,255,255,0.08); padding:6px 10px; border-radius:20px; }
+.res { background: rgba(255,255,255,0.08); padding:6px 10px; border-radius:20px; display:flex; align-items:center; gap:4px; }
+.res svg { width:14px; height:14px; }
 
 /* TABS */
 main { flex:1; padding: 16px; }
@@ -38,13 +40,14 @@ main { flex:1; padding: 16px; }
 
 /* CAT STAGE */
 .cat-stage {
-  position:relative; height:200px;
+  position:relative; height:220px;
   display:flex; align-items:center; justify-content:center;
   background: radial-gradient(circle at center, rgba(255,154,86,0.15), transparent 70%);
   border-radius: 24px; margin-bottom: 16px;
 }
-.big-cat {
-  font-size: 120px; animation: bounce 2.4s ease-in-out infinite;
+.big-cat svg {
+  width: 160px; height: 160px;
+  animation: bounce 2.4s ease-in-out infinite;
   filter: drop-shadow(0 8px 20px rgba(255,107,107,0.4));
 }
 @keyframes bounce {
@@ -56,14 +59,18 @@ main { flex:1; padding: 16px; }
   background: linear-gradient(135deg,#ff9a56,#ff6b6b);
   padding: 6px 14px; border-radius: 20px; font-weight: 700;
   box-shadow: 0 4px 16px rgba(255,107,107,0.4);
+  display:flex; align-items:center; gap:4px;
 }
+.power-badge svg { width:14px; height:14px; }
 
 /* STATS */
 .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
 .stat {
   background: rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 14px;
-  display:flex; justify-content:space-between; font-size:14px;
+  display:flex; justify-content:space-between; font-size:14px; align-items:center;
 }
+.stat span { display:flex; align-items:center; gap:6px; }
+.stat svg { width:16px; height:16px; }
 .stat b { color:#ff9a56; }
 
 /* PROGRESS */
@@ -82,28 +89,134 @@ main { flex:1; padding: 16px; }
   padding: 14px; border-radius: 14px; font-size:15px; font-weight:600;
   background: rgba(255,255,255,0.08); color:#fff; margin-bottom:10px;
   transition: transform 0.1s, background 0.2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
 }
 .btn:active { transform: scale(0.97); }
 .btn small { font-weight:400; opacity:0.6; font-size:12px; }
+.btn svg { width:20px; height:20px; }
 .btn.primary {
   background: linear-gradient(135deg,#ff9a56,#ff6b6b);
   box-shadow: 0 6px 20px rgba(255,107,107,0.35);
 }
 .btn.big { padding: 18px; font-size:17px; }
 
-/* BATTLE */
-.battle-intro { text-align:center; margin-bottom:16px; }
-.battle-intro h2 { margin-bottom:8px; }
-.battle-intro p { opacity:0.7; font-size:14px; margin-bottom:16px; }
-.battle-log {
-  background: rgba(0,0,0,0.25); border-radius: 14px; padding: 12px;
-  min-height: 120px; max-height: 260px; overflow-y:auto;
-  font-size:13px; line-height:1.6; margin-bottom:16px;
+/* ===== BATTLE ARENA ===== */
+.arena {
+  position:relative;
+  height: 300px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #2a1a3e 0%, #1a1230 60%, #0d0820 100%);
+  overflow: hidden;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,154,86,0.2);
+  display:none;
 }
-.battle-log div { animation: fade 0.2s; }
-.log-hit { color:#ff9a56; }
-.log-win { color:#4ade80; font-weight:700; }
-.log-lose { color:#f87171; font-weight:700; }
+.arena.active { display:block; }
+
+/* ground */
+.arena::after {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:70px;
+  background: linear-gradient(180deg, rgba(255,154,86,0.15), rgba(0,0,0,0.5));
+  border-top: 2px solid rgba(255,154,86,0.3);
+}
+
+.fighter {
+  position:absolute; bottom:70px;
+  width: 100px; height:100px;
+  transition: transform 0.15s ease-out;
+  z-index: 2;
+}
+.fighter.player { left: 20px; }
+.fighter.enemy { right: 20px; }
+.fighter svg { width:100%; height:100%; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5)); }
+
+/* атака вперёд */
+.fighter.lunge-player { transform: translateX(50px) scale(1.05); }
+.fighter.lunge-enemy { transform: translateX(-50px) scale(1.05); }
+/* получение урона */
+.fighter.hit { animation: hitShake 0.3s; }
+@keyframes hitShake {
+  0%,100% { filter: brightness(1); }
+  30% { filter: brightness(2) sepia(1) hue-rotate(-30deg); }
+  50% { transform: translateX(0); }
+}
+.fighter.dying { animation: die 0.6s forwards; }
+@keyframes die {
+  to { transform: translateY(40px) rotate(20deg); opacity: 0; }
+}
+
+/* HP bars */
+.hp-wrap {
+  position:absolute; top:14px; width: 44%;
+  z-index: 3;
+}
+.hp-wrap.left { left: 12px; }
+.hp-wrap.right { right: 12px; text-align:right; }
+.hp-name { font-size:12px; font-weight:700; margin-bottom:4px; opacity:0.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hp-bar {
+  height: 14px; background: rgba(0,0,0,0.6);
+  border-radius: 10px; overflow:hidden;
+  border: 1px solid rgba(255,255,255,0.15);
+  position:relative;
+}
+.hp-fill {
+  height:100%; width:100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  border-radius:10px;
+  transition: width 0.4s ease;
+}
+.hp-wrap.right .hp-fill {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  margin-left: auto;
+}
+.hp-fill.low { background: linear-gradient(90deg, #fbbf24, #f59e0b) !important; }
+.hp-fill.crit { background: linear-gradient(90deg, #f87171, #dc2626) !important; }
+
+/* damage popup */
+.dmg-popup {
+  position:absolute; font-weight:900; font-size:22px;
+  color:#ff4444; text-shadow: 0 2px 6px #000, 0 0 10px #ff4444;
+  pointer-events:none; z-index:5;
+  animation: dmgFloat 0.9s ease-out forwards;
+}
+@keyframes dmgFloat {
+  0% { transform: translateY(0) scale(0.5); opacity:0; }
+  20% { transform: translateY(-15px) scale(1.3); opacity:1; }
+  100% { transform: translateY(-60px) scale(1); opacity:0; }
+}
+.dmg-popup.heal { color:#4ade80; text-shadow: 0 2px 6px #000, 0 0 10px #4ade80; }
+
+/* vs badge */
+.vs-badge {
+  position:absolute; top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  font-size: 32px; font-weight: 900; font-style: italic;
+  color: #ff9a56; text-shadow: 0 0 20px #ff6b6b;
+  z-index:4; opacity:0.8;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { transform: translate(-50%,-50%) scale(1); }
+  50% { transform: translate(-50%,-50%) scale(1.15); }
+}
+
+/* result overlay */
+.result-overlay {
+  position:absolute; inset:0;
+  background: rgba(0,0,0,0.7);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:10; opacity:0; pointer-events:none;
+  transition: opacity 0.4s;
+}
+.result-overlay.show { opacity:1; pointer-events:auto; }
+.result-title { font-size:36px; font-weight:900; margin-bottom:14px; }
+.result-title.win { color:#4ade80; text-shadow: 0 0 20px #22c55e; }
+.result-title.lose { color:#f87171; text-shadow: 0 0 20px #dc2626; }
+.result-reward { font-size:15px; opacity:0.85; margin-bottom:6px; }
+
+/* league info */
 .league-info { text-align:center; background:rgba(255,255,255,0.06); border-radius:14px; padding:14px; }
 .league-info h3 { margin-bottom:6px; }
 .league-info p { font-size:13px; opacity:0.7; }
@@ -120,7 +233,8 @@ main { flex:1; padding: 16px; }
 }
 .leader-rank { font-weight:800; width:28px; text-align:center; }
 .leader-row .name { flex:1; font-weight:600; }
-.leader-row .power { color:#ff9a56; font-weight:700; font-size:14px; }
+.leader-row .power { color:#ff9a56; font-weight:700; font-size:14px; display:flex; align-items:center; gap:3px; }
+.leader-row .power svg { width:12px; height:12px; }
 
 /* SEASON */
 .season-card {
@@ -145,6 +259,7 @@ nav {
   display:flex; flex-direction:column; align-items:center; gap:2px;
   transition: color 0.2s;
 }
+.nav-btn svg { width:24px; height:24px; }
 .nav-btn span { font-size:10px; }
 .nav-btn.active { color:#ff9a56; }
 
@@ -156,6 +271,20 @@ nav {
   transition: all 0.3s ease; z-index:1000; white-space:nowrap;
 }
 #toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* SFX text */
+.combo-text {
+  position:absolute; top: 80px; left: 50%; transform: translateX(-50%);
+  font-size: 16px; font-weight: 900; color:#fbbf24;
+  text-shadow: 0 0 10px #f59e0b;
+  z-index: 6; pointer-events:none;
+  animation: comboAnim 0.7s ease-out forwards;
+}
+@keyframes comboAnim {
+  0% { transform: translateX(-50%) scale(0.5); opacity:0; }
+  30% { transform: translateX(-50%) scale(1.2); opacity:1; }
+  100% { transform: translateX(-50%) translateY(-30px) scale(1); opacity:0; }
+}
 </style>
 </head>
 <body>
@@ -163,29 +292,29 @@ nav {
 
   <header>
     <div class="player-info">
-      <div class="cat-avatar" id="catAvatar">🐱</div>
+      <div class="cat-avatar" id="catAvatar"></div>
       <div>
         <div class="cat-name" id="catName">Мурзик</div>
         <div class="cat-level">Ур. <span id="catLevel">1</span> · <span id="catPower">10</span>⚔️</div>
       </div>
     </div>
     <div class="resources">
-      <div class="res">🍖 <span id="food">0</span></div>
-      <div class="res">💎 <span id="gems">0</span></div>
+      <div class="res" id="foodRes"></div>
+      <div class="res" id="gemsRes"></div>
     </div>
   </header>
 
   <main>
     <section id="tab-cat" class="tab active">
       <div class="cat-stage">
-        <div class="big-cat" id="bigCat">🐱</div>
-        <div class="power-badge">⚔️ <span id="powerBig">10</span></div>
+        <div class="big-cat" id="bigCat"></div>
+        <div class="power-badge" id="powerBadge"></div>
       </div>
       <div class="stats">
-        <div class="stat"><span>❤️ HP</span><b id="statHp">100</b></div>
-        <div class="stat"><span>⚔️ Атака</span><b id="statAtk">10</b></div>
-        <div class="stat"><span>🛡️ Защита</span><b id="statDef">5</b></div>
-        <div class="stat"><span>💨 Скорость</span><b id="statSpd">5</b></div>
+        <div class="stat" id="statHpWrap"></div>
+        <div class="stat" id="statAtkWrap"></div>
+        <div class="stat" id="statDefWrap"></div>
+        <div class="stat" id="statSpdWrap"></div>
       </div>
       <div class="progress-wrap">
         <div class="progress-label">
@@ -195,18 +324,37 @@ nav {
         <div class="progress"><div id="xpBar"></div></div>
       </div>
       <div class="actions">
-        <button class="btn primary" id="feedBtn">🍖 Покормить <small>(+5 XP)</small></button>
-        <button class="btn" id="trainBtn">🏋️ Тренировать <small>(+15 XP, -10🍖)</small></button>
+        <button class="btn primary" id="feedBtn"><span id="feedIcon"></span>Покормить <small>(+5 XP)</small></button>
+        <button class="btn" id="trainBtn"><span id="trainIcon"></span>Тренировать <small>(+15 XP, -10🍖)</small></button>
       </div>
     </section>
 
     <section id="tab-battle" class="tab">
-      <div class="battle-intro">
+      <div class="arena" id="arena">
+        <div class="hp-wrap left">
+          <div class="hp-name" id="hpNameP">Ты</div>
+          <div class="hp-bar"><div class="hp-fill" id="hpFillP"></div></div>
+        </div>
+        <div class="hp-wrap right">
+          <div class="hp-name" id="hpNameE">Враг</div>
+          <div class="hp-bar"><div class="hp-fill" id="hpFillE"></div></div>
+        </div>
+        <div class="fighter player" id="fighterP"></div>
+        <div class="fighter enemy" id="fighterE"></div>
+        <div class="vs-badge" id="vsBadge">VS</div>
+        <div class="result-overlay" id="resultOverlay">
+          <div class="result-title" id="resultTitle">ПОБЕДА</div>
+          <div class="result-reward" id="resultReward"></div>
+          <button class="btn primary" id="closeResultBtn" style="width:180px; margin-top:16px;">Продолжить</button>
+        </div>
+      </div>
+
+      <div class="battle-intro" id="battleIntro">
         <h2>⚔️ Арена</h2>
         <p>Найди соперника и сразись за награду!</p>
         <button class="btn primary big" id="findBattleBtn">🔍 Найти бой</button>
       </div>
-      <div class="battle-log" id="battleLog"></div>
+
       <div class="league-info">
         <h3>🏆 Лига: <span id="leagueName">Бронза</span></h3>
         <p>Побед до следующей лиги: <b id="winsToNext">3</b></p>
@@ -233,17 +381,91 @@ nav {
   </main>
 
   <nav>
-    <button class="nav-btn active" data-tab="cat">🐱<span>Кот</span></button>
-    <button class="nav-btn" data-tab="battle">⚔️<span>Бой</span></button>
-    <button class="nav-btn" data-tab="top">🏆<span>Топ</span></button>
-    <button class="nav-btn" data-tab="season">🎁<span>Сезон</span></button>
+    <button class="nav-btn active" data-tab="cat" id="navCat"></button>
+    <button class="nav-btn" data-tab="battle" id="navBattle"></button>
+    <button class="nav-btn" data-tab="top" id="navTop"></button>
+    <button class="nav-btn" data-tab="season" id="navSeason"></button>
   </nav>
 
   <div id="toast"></div>
 </div>
 
 <script>
-// ================== CONFIG ==================
+// ==================== SVG ICONS ====================
+const SVG = {
+  cat: (color1='#ff9a56', color2='#ff6b6b') => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="catGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${color1}"/>
+          <stop offset="100%" stop-color="${color2}"/>
+        </linearGradient>
+      </defs>
+      <!-- уши -->
+      <path d="M20 35 L28 12 L42 28 Z" fill="url(#catGrad)"/>
+      <path d="M80 35 L72 12 L58 28 Z" fill="url(#catGrad)"/>
+      <path d="M24 30 L29 18 L37 28 Z" fill="#ffb8a0"/>
+      <path d="M76 30 L71 18 L63 28 Z" fill="#ffb8a0"/>
+      <!-- голова -->
+      <ellipse cx="50" cy="55" rx="32" ry="30" fill="url(#catGrad)"/>
+      <!-- глаза -->
+      <ellipse cx="38" cy="52" rx="6" ry="8" fill="#1a1a2e"/>
+      <ellipse cx="62" cy="52" rx="6" ry="8" fill="#1a1a2e"/>
+      <circle cx="40" cy="49" r="2.2" fill="#fff"/>
+      <circle cx="64" cy="49" r="2.2" fill="#fff"/>
+      <!-- нос -->
+      <path d="M47 62 L53 62 L50 66 Z" fill="#ff3d7f"/>
+      <!-- рот -->
+      <path d="M50 66 Q45 71 42 68 M50 66 Q55 71 58 68" stroke="#1a1a2e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- усы -->
+      <line x1="20" y1="60" x2="38" y2="62" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="20" y1="68" x2="38" y2="66" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="80" y1="60" x2="62" y2="62" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="80" y1="68" x2="62" y2="66" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- щёки -->
+      <ellipse cx="30" cy="62" rx="5" ry="3" fill="#ff8da8" opacity="0.6"/>
+      <ellipse cx="70" cy="62" rx="5" ry="3" fill="#ff8da8" opacity="0.6"/>
+    </svg>`,
+  catEnemy: () => `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="catGradE" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#a78bfa"/>
+          <stop offset="100%" stop-color="#7c3aed"/>
+        </linearGradient>
+      </defs>
+      <path d="M20 35 L28 12 L42 28 Z" fill="url(#catGradE)"/>
+      <path d="M80 35 L72 12 L58 28 Z" fill="url(#catGradE)"/>
+      <path d="M24 30 L29 18 L37 28 Z" fill="#c4b5fd"/>
+      <path d="M76 30 L71 18 L63 28 Z" fill="#c4b5fd"/>
+      <ellipse cx="50" cy="55" rx="32" ry="30" fill="url(#catGradE)"/>
+      <ellipse cx="38" cy="52" rx="6" ry="8" fill="#1a1a2e"/>
+      <ellipse cx="62" cy="52" rx="6" ry="8" fill="#1a1a2e"/>
+      <circle cx="40" cy="49" r="2.2" fill="#fff"/>
+      <circle cx="64" cy="49" r="2.2" fill="#fff"/>
+      <path d="M47 62 L53 62 L50 66 Z" fill="#ec4899"/>
+      <path d="M50 66 Q45 71 42 68 M50 66 Q55 71 58 68" stroke="#1a1a2e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <line x1="20" y1="60" x2="38" y2="62" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="20" y1="68" x2="38" y2="66" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="80" y1="60" x2="62" y2="62" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="80" y1="68" x2="62" y2="66" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+      <ellipse cx="30" cy="62" rx="5" ry="3" fill="#f0abfc" opacity="0.6"/>
+      <ellipse cx="70" cy="62" rx="5" ry="3" fill="#f0abfc" opacity="0.6"/>
+    </svg>`,
+  food: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3c-1 2-3 4-3 6a3 3 0 006 0c0-2-2-4-3-6z" fill="#ff9a56"/><path d="M8 13c-2 0-3 2-3 4s2 4 4 4h6c2 0 4-2 4-4s-1-4-3-4H8z" fill="#ff6b6b"/></svg>`,
+  gem: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12l3 6-9 12L3 9l3-6z" fill="#22d3ee" stroke="#0891b2" stroke-width="1"/><path d="M6 3l6 6 6-6M3 9h18M9 9l3 12M15 9l-3 12" stroke="#0891b2" stroke-width="1" opacity="0.5"/></svg>`,
+  sword: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21l3-3M6 18l12-12 3-3-3 3-12 12z" stroke="#ff9a56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20l-1 1M6 18l3 3" stroke="#ff9a56" stroke-width="2"/></svg>`,
+  heart: () => `<svg viewBox="0 0 24 24" fill="#f87171" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-8-5-8-11a4 4 0 018-1 4 4 0 018 1c0 6-8 11-8 11z"/></svg>`,
+  shield: () => `<svg viewBox="0 0 24 24" fill="#60a5fa" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v6c0 5 3 9 8 10 5-1 8-5 8-10V6l-8-4z"/></svg>`,
+  speed: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 3L4 14h6l-1 7 9-11h-6l1-7z" fill="#fbbf24"/></svg>`,
+  paw: () => `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="15" r="4"/><ellipse cx="6" cy="10" rx="2" ry="2.5"/><ellipse cx="18" cy="10" rx="2" ry="2.5"/><ellipse cx="9" cy="6" rx="1.8" ry="2.3"/><ellipse cx="15" cy="6" rx="1.8" ry="2.3"/></svg>`,
+  fist: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 10V8a2 2 0 114 0v2M10 8V6a2 2 0 114 0v2M14 8V7a2 2 0 114 0v6c0 4-2 7-6 7s-6-2-7-5l-1-4a2 2 0 013.5-1.5L8 11" stroke="#ff9a56" stroke-width="2" stroke-linejoin="round" fill="none"/></svg>`,
+  trophy: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 3h8v6a4 4 0 11-8 0V3z" fill="#fbbf24"/><path d="M8 5H5a2 2 0 002 4M16 5h3a2 2 0 01-2 4" stroke="#f59e0b" stroke-width="2" fill="none"/><path d="M10 15h4v3h-4z" fill="#f59e0b"/><path d="M8 21h8v-3H8v3z" fill="#fbbf24"/></svg>`,
+  gift: () => `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="10" width="18" height="11" fill="#ef4444"/><rect x="3" y="7" width="18" height="4" fill="#dc2626"/><path d="M12 7v14M3 12h18" stroke="#fbbf24" stroke-width="1.5"/><path d="M9 7a2 2 0 010-4c2 0 3 2 3 4M15 7a2 2 0 000-4c-2 0-3 2-3 4" stroke="#dc2626" stroke-width="1.5" fill="#ef4444"/></svg>`,
+  bolt: () => `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#fbbf24"/></svg>`
+};
+
+// ==================== CONFIG ====================
 const LEAGUES = [
   { name: 'Бронза', emoji: '🥉', wins: 3 },
   { name: 'Серебро', emoji: '🥈', wins: 5 },
@@ -253,22 +475,23 @@ const LEAGUES = [
 ];
 const BOT_NAMES = ['Барсик', 'Мурка', 'Васька', 'Пушок', 'Тигр', 'Снежок', 'Рыжик', 'Дымка', 'Люцифер', 'Котэ'];
 
-// ================== STATE ==================
+// ==================== STATE ====================
 let state = {
   catName: 'Мурзик', level: 1, xp: 0, xpNeed: 100,
   hp: 100, atk: 10, def: 5, spd: 5,
   food: 50, gems: 0, wins: 0, league: 0,
   seasonEnd: Date.now() + 7 * 24 * 60 * 60 * 1000
 };
+let battleInProgress = false;
 
-// ================== SAVE / LOAD ==================
+// ==================== SAVE / LOAD ====================
 function save() { localStorage.setItem('catBattle', JSON.stringify(state)); }
 function load() {
   const raw = localStorage.getItem('catBattle');
   if (raw) { try { state = { ...state, ...JSON.parse(raw) }; } catch(e){} }
 }
 
-// ================== HELPERS ==================
+// ==================== HELPERS ====================
 function power() {
   return Math.floor(state.atk * 2 + state.def * 1.5 + state.hp / 5 + state.spd * 1.2);
 }
@@ -282,7 +505,31 @@ function toast(msg) {
   t._tid = setTimeout(() => t.classList.remove('show'), 1600);
 }
 
-// ================== RENDER ==================
+// ==================== INIT SVG ====================
+function initSVGs() {
+  document.getElementById('catAvatar').innerHTML = SVG.cat();
+  document.getElementById('bigCat').innerHTML = SVG.cat();
+  document.getElementById('foodRes').innerHTML = SVG.food() + '<span id="food">0</span>';
+  document.getElementById('gemsRes').innerHTML = SVG.gem() + '<span id="gems">0</span>';
+  document.getElementById('feedIcon').innerHTML = SVG.food();
+  document.getElementById('trainIcon').innerHTML = SVG.fist();
+  document.getElementById('powerBadge').innerHTML = SVG.sword() + '<span id="powerBig">10</span>';
+
+  document.getElementById('statHpWrap').innerHTML = '<span>' + SVG.heart() + 'HP</span><b id="statHp">100</b>';
+  document.getElementById('statAtkWrap').innerHTML = '<span>' + SVG.sword() + 'Атака</span><b id="statAtk">10</b>';
+  document.getElementById('statDefWrap').innerHTML = '<span>' + SVG.shield() + 'Защита</span><b id="statDef">5</b>';
+  document.getElementById('statSpdWrap').innerHTML = '<span>' + SVG.speed() + 'Скорость</span><b id="statSpd">5</b>';
+
+  document.getElementById('navCat').innerHTML = SVG.paw() + '<span>Кот</span>';
+  document.getElementById('navBattle').innerHTML = SVG.sword() + '<span>Бой</span>';
+  document.getElementById('navTop').innerHTML = SVG.trophy() + '<span>Топ</span>';
+  document.getElementById('navSeason').innerHTML = SVG.gift() + '<span>Сезон</span>';
+
+  document.getElementById('fighterP').innerHTML = SVG.cat();
+  document.getElementById('fighterE').innerHTML = SVG.catEnemy();
+}
+
+// ==================== RENDER ====================
 function render() {
   document.getElementById('catName').textContent = state.catName;
   document.getElementById('catLevel').textContent = state.level;
@@ -313,7 +560,6 @@ function renderLeaderboard() {
   const myPower = power();
   const bots = [];
   for (let i = 0; i < 9; i++) {
-    const lvl = Math.max(1, state.level + (i - 4));
     bots.push({
       name: BOT_NAMES[i % BOT_NAMES.length] + (i > 4 ? '⚡' : ''),
       power: Math.floor(myPower * (0.5 + i * 0.15) + (Math.random() * 20 - 10))
@@ -328,7 +574,7 @@ function renderLeaderboard() {
     return '<div class="leader-row ' + (p.me ? 'me' : '') + '">' +
       '<div class="leader-rank">' + medal + '</div>' +
       '<div class="name">' + p.name + '</div>' +
-      '<div class="power">⚔️ ' + p.power + '</div>' +
+      '<div class="power">' + SVG.sword() + p.power + '</div>' +
       '</div>';
   }).join('');
 }
@@ -341,7 +587,7 @@ function renderSeasonTimer() {
   document.getElementById('seasonTimer').textContent = '⏳ До конца: ' + d + 'д ' + h + 'ч ' + m + 'м';
 }
 
-// ================== ACTIONS ==================
+// ==================== ACTIONS ====================
 function feed() {
   state.food += 5;
   addXp(5);
@@ -376,69 +622,180 @@ function levelUp() {
   toast('⬆️ Уровень ' + state.level + '! +статы, +2💎');
 }
 
-// ================== BATTLE ==================
+// ==================== BATTLE (ВИЗУАЛЬНЫЙ) ====================
 function startBattle() {
+  if (battleInProgress) return;
+  battleInProgress = true;
+
   const myPower = power();
-  const enemyPower = Math.floor(myPower * (0.7 + Math.random() * 0.6));
+  const enemyPower = Math.floor(myPower * (0.75 + Math.random() * 0.5));
   const enemyName = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
 
-  const log = document.getElementById('battleLog');
-  log.innerHTML = '';
-  const addLog = (txt, cls) => {
-    const d = document.createElement('div');
-    if (cls) d.className = cls;
-    d.textContent = txt;
-    log.appendChild(d);
-    log.scrollTop = log.scrollHeight;
-  };
+  // показать арену
+  document.getElementById('arena').classList.add('active');
+  document.getElementById('battleIntro').style.display = 'none';
+  document.getElementById('resultOverlay').classList.remove('show');
 
-  addLog('⚔️ ' + state.catName + ' (⚔️' + myPower + ') vs ' + enemyName + ' (⚔️' + enemyPower + ')');
-  addLog('Бой начинается...');
+  // обнулить позиции
+  const fP = document.getElementById('fighterP');
+  const fE = document.getElementById('fighterE');
+  fP.className = 'fighter player';
+  fE.className = 'fighter enemy';
+  fP.style.opacity = '1';
+  fE.style.opacity = '1';
 
-  let myHp = state.hp;
-  let enHp = Math.floor(state.hp * (0.8 + Math.random() * 0.5));
+  // HP
+  const myMaxHp = state.hp;
+  const enMaxHp = Math.floor(state.hp * (0.8 + Math.random() * 0.5));
+  let myHp = myMaxHp;
+  let enHp = enMaxHp;
+
+  document.getElementById('hpNameP').textContent = state.catName;
+  document.getElementById('hpNameE').textContent = enemyName;
+  updateHpBars();
+
+  // сила врага нормируется
   const myAtk = state.atk;
-  const enAtk = Math.floor(state.atk * (enemyPower / Math.max(1, myPower)));
+  const enAtk = Math.max(1, Math.floor(state.atk * (enemyPower / Math.max(1, myPower))));
+
+  document.getElementById('vsBadge').style.display = 'block';
 
   let turn = 0;
-  const maxTurns = 12;
+  let myTurn = true; // игрок бьёт первым
+  const maxTurns = 20;
 
-  const interval = setInterval(() => {
-    turn++;
-    const myDmg = Math.max(1, myAtk - Math.floor(Math.random() * 3));
-    enHp -= myDmg;
-    addLog('🐾 ' + state.catName + ' бьёт на ' + myDmg + ' (у врага ' + Math.max(0, enHp) + ')', 'log-hit');
-
-    if (enHp <= 0) { finish(true); return; }
-
-    const enDmg = Math.max(1, enAtk - Math.floor(Math.random() * 3));
-    myHp -= enDmg;
-    addLog('👊 ' + enemyName + ' бьёт на ' + enDmg + ' (у тебя ' + Math.max(0, myHp) + ')', 'log-hit');
-
-    if (myHp <= 0) { finish(false); return; }
-    if (turn >= maxTurns) { finish(myHp >= enHp); return; }
-  }, 550);
-
-  function finish(win) {
-    clearInterval(interval);
-    if (win) {
-      const rewardFood = 20 + Math.floor(Math.random() * 20);
-      const rewardXp = 25;
-      const rewardGems = Math.random() < 0.3 ? 1 : 0;
-      state.food += rewardFood;
-      state.gems += rewardGems;
-      addXp(rewardXp);
-      state.wins++;
-      checkLeague();
-      addLog('🎉 Победа! +' + rewardFood + '🍖 +' + rewardXp + 'XP ' + (rewardGems ? '+1💎' : ''), 'log-win');
-      toast('🎉 Победа!');
-    } else {
-      addLog('😿 Поражение... но опыт есть (+5 XP)', 'log-lose');
-      addXp(5);
-      toast('😿 Поражение');
-    }
-    save(); render();
+  function updateHpBars() {
+    const pPct = Math.max(0, (myHp / myMaxHp) * 100);
+    const ePct = Math.max(0, (enHp / enMaxHp) * 100);
+    const fillP = document.getElementById('hpFillP');
+    const fillE = document.getElementById('hpFillE');
+    fillP.style.width = pPct + '%';
+    fillE.style.width = ePct + '%';
+    fillP.className = 'hp-fill' + (pPct < 25 ? ' crit' : pPct < 50 ? ' low' : '');
+    fillE.className = 'hp-fill' + (ePct < 25 ? ' crit' : ePct < 50 ? ' low' : '');
   }
+
+  function showDamage(x, y, dmg, isCrit) {
+    const el = document.createElement('div');
+    el.className = 'dmg-popup';
+    el.textContent = '-' + dmg + (isCrit ? '!' : '');
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    if (isCrit) el.style.fontSize = '30px';
+    document.getElementById('arena').appendChild(el);
+    setTimeout(() => el.remove(), 900);
+  }
+
+  function showCombo(text) {
+    const el = document.createElement('div');
+    el.className = 'combo-text';
+    el.textContent = text;
+    document.getElementById('arena').appendChild(el);
+    setTimeout(() => el.remove(), 750);
+  }
+
+  function step() {
+    turn++;
+    if (turn > maxTurns) { endBattle(myHp >= enHp); return; }
+
+    if (myTurn) {
+      // игрок атакует
+      fP.classList.add('lunge-player');
+      setTimeout(() => fP.classList.remove('lunge-player'), 200);
+
+      setTimeout(() => {
+        const isCrit = Math.random() < 0.2;
+        let dmg = Math.max(1, Math.floor(myAtk * (0.8 + Math.random() * 0.4)));
+        if (isCrit) dmg = Math.floor(dmg * 1.8);
+        enHp -= dmg;
+
+        fE.classList.add('hit');
+        setTimeout(() => fE.classList.remove('hit'), 300);
+
+        const rectE = fE.getBoundingClientRect();
+        const rectA = document.getElementById('arena').getBoundingClientRect();
+        showDamage(rectE.left - rectA.left + rectE.width / 2 - 20,
+                   rectE.top - rectA.top + 20, dmg, isCrit);
+        if (isCrit) showCombo('💥 КРИТ!');
+
+        updateHpBars();
+
+        if (enHp <= 0) { endBattle(true); return; }
+        myTurn = false;
+        setTimeout(step, 350);
+      }, 200);
+    } else {
+      // враг атакует
+      fE.classList.add('lunge-enemy');
+      setTimeout(() => fE.classList.remove('lunge-enemy'), 200);
+
+      setTimeout(() => {
+        const isCrit = Math.random() < 0.15;
+        let dmg = Math.max(1, Math.floor(enAtk * (0.8 + Math.random() * 0.4)));
+        if (isCrit) dmg = Math.floor(dmg * 1.8);
+        myHp -= dmg;
+
+        fP.classList.add('hit');
+        setTimeout(() => fP.classList.remove('hit'), 300);
+
+        const rectP = fP.getBoundingClientRect();
+        const rectA = document.getElementById('arena').getBoundingClientRect();
+        showDamage(rectP.left - rectA.left + rectP.width / 2 - 20,
+                   rectP.top - rectA.top + 20, dmg, isCrit);
+        if (isCrit) showCombo('💢 ВРАГ КРИТ!');
+
+        updateHpBars();
+
+        if (myHp <= 0) { endBattle(false); return; }
+        myTurn = true;
+        setTimeout(step, 350);
+      }, 200);
+    }
+  }
+
+  function endBattle(win) {
+    // умирающий кот
+    if (win) { fE.classList.add('dying'); }
+    else { fP.classList.add('dying'); }
+
+    setTimeout(() => {
+      const overlay = document.getElementById('resultOverlay');
+      const title = document.getElementById('resultTitle');
+      const reward = document.getElementById('resultReward');
+
+      if (win) {
+        const rewardFood = 20 + Math.floor(Math.random() * 20);
+        const rewardXp = 25;
+        const rewardGems = Math.random() < 0.3 ? 1 : 0;
+        state.food += rewardFood;
+        state.gems += rewardGems;
+        addXp(rewardXp);
+        state.wins++;
+        checkLeague();
+        title.textContent = '🎉 ПОБЕДА!';
+        title.className = 'result-title win';
+        reward.innerHTML = '+' + rewardFood + ' 🍖&nbsp;&nbsp;+' + rewardXp + ' XP' + (rewardGems ? '&nbsp;&nbsp;+1 💎' : '');
+      } else {
+        addXp(5);
+        title.textContent = '😿 ПОРАЖЕНИЕ';
+        title.className = 'result-title lose';
+        reward.textContent = '+5 XP за старание';
+      }
+
+      overlay.classList.add('show');
+      save(); render();
+    }, 650);
+  }
+
+  // старт через паузу
+  setTimeout(step, 500);
+}
+
+function closeBattleResult() {
+  battleInProgress = false;
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('arena').classList.remove('active');
+  document.getElementById('battleIntro').style.display = 'block';
 }
 
 function checkLeague() {
@@ -450,9 +807,10 @@ function checkLeague() {
   }
 }
 
-// ================== NAVIGATION ==================
+// ==================== NAVIGATION ====================
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (battleInProgress) return;
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
@@ -460,11 +818,13 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   });
 });
 
-// ================== INIT ==================
+// ==================== INIT ====================
 load();
+initSVGs();
 document.getElementById('feedBtn').addEventListener('click', feed);
 document.getElementById('trainBtn').addEventListener('click', train);
 document.getElementById('findBattleBtn').addEventListener('click', startBattle);
+document.getElementById('closeResultBtn').addEventListener('click', closeBattleResult);
 
 render();
 setInterval(renderSeasonTimer, 30000);
